@@ -1,25 +1,28 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getAllProductQuestion2 } from "../store/manageProduct/thunkAction";
 import ListCard from "../components/ListCard";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@mui/material";
 import { Container } from "@mui/system";
 import { manageProductActions } from "../store/manageProduct/slice";
+import { manageProductServices } from "../services/manageProduct.services";
 
 const Question2 = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const pageSize = 10;
-  useEffect(() => {
-    dispatch(getAllProductQuestion2());
-  }, [dispatch]);
-
+  const fetchData = async() => {
+    const res = await manageProductServices.getDataQuestion2()
+    if(res.status === 200){
+      localStorage.setItem("listDataStatic",JSON.stringify(res.data))
+    }
+  }
+  fetchData()
   const { dataBidding } = useSelector(
     (state) => state.manageProduct
   );
 
-  const listProductQuestion2 = JSON.parse(localStorage.getItem("listDataStatic"))
+  const listProductQuestion2 = JSON.parse(localStorage.getItem("listDataStatic")) || ""
 
   const divideData = () => {
     let dataSplitPage = {};
