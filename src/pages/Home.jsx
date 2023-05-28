@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
-import CardProduct from "../components/card/CardProduct";
 import { manageProductServices } from "../services/manageProduct.services";
-import Grid from "@mui/system/Unstable_Grid/Grid";
 import {
   createCookie,
   deleteCookie,
@@ -10,6 +8,7 @@ import {
 import { Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import ListCard from "../components/ListCard";
+import { Container } from "@mui/system";
 
 const Home = () => {
   const fetchData = async () => {
@@ -32,18 +31,20 @@ const Home = () => {
       fetchData();
     } else {
       const cache = JSON.parse(localStorage.getItem("data"));
+      if(!cache){
+        fetchData()
+      }
       setData(cache);
     }
   }, []);
 
   useEffect(() => {
     window.scrollTo(0, 0);
+    
   }, []);
-
   const navigate = useNavigate();
-
   return (
-    <div>
+    <Container>
       <Button
         onClick={() => {
           navigate("question2");
@@ -54,7 +55,7 @@ const Home = () => {
         Go Question 2
       </Button>
       <ListCard data={data} colums={2} />
-    </div>
+    </Container>
   );
 };
 

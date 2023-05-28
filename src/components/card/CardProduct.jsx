@@ -13,8 +13,7 @@ import { Chip } from "@mui/material";
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 import ThumbDownAltIcon from "@mui/icons-material/ThumbDownAlt";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { manageProductActions } from "../../store/manageProduct/slice";
+
 
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
@@ -29,15 +28,22 @@ const ExpandMore = styled((props) => {
 
 const CardProduct = (props) => {
   const [expanded, setExpanded] = React.useState(false);
+  
   const handleExpandClick = () => {
     setExpanded(!expanded);
   };
   const data = props.value;
-  const ratingColor = data.rating === "Good" ? "#0A9822" : "#EF4444";
-  const ratingColorBg = data.rating === "Good" ? "#DCFCE7" : "#FEE2E2";
+  const ratingColor = data?.rating === "Good" ? "#0A9822" : "#EF4444";
+  const ratingColorBg = data?.rating === "Good" ? "#DCFCE7" : "#FEE2E2";
   const navigate = useNavigate();
   return (
-    <Card sx={{ maxWidth: 500, borderRadius: 4 }}>
+    <Card
+      sx={{
+        maxWidth: 500,
+        borderRadius: 4,
+        boxShadow: "1px 1px 1px 1px #EEEEEE",
+      }}
+    >
       <Box
         sx={{
           p: 2,
@@ -53,7 +59,7 @@ const CardProduct = (props) => {
       >
         <Avatar
           variant="rounded"
-          src={data.image}
+          src={data?.image}
           style={{ width: 100, height: 90 }}
         />
         <Stack
@@ -65,10 +71,10 @@ const CardProduct = (props) => {
           alignItems={"center"}
         >
           <Typography fontWeight={700} textAlign="center">
-            {data.product_name}
+            {data?.product_name}
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            {data.product_brand}
+            {data?.product_brand}
           </Typography>
         </Stack>
         <Stack
@@ -82,13 +88,13 @@ const CardProduct = (props) => {
             width: 75,
           }}
         >
-          {data.rating === "Good" ? (
+          {data.rating !== undefined && data?.rating === "Good" ? (
             <ThumbUpIcon style={{ color: "#FFB74D" }} />
           ) : (
             <ThumbDownAltIcon style={{ color: "FFB74D" }} />
           )}
           <Typography fontWeight={700} color={ratingColor}>
-            {data.rating.toUpperCase()}
+            {data?.rating.toUpperCase()}
           </Typography>
         </Stack>
       </Box>
@@ -113,8 +119,8 @@ const CardProduct = (props) => {
             justifyContent="space-evenly"
             sx={{ px: 2, py: 1, bgcolor: "background.default" }}
           >
-            <Chip label={data.health_risks[0].health_risk_name}></Chip>
-            <Chip label={data.health_risks[1].health_risk_name}></Chip>
+            <Chip label={data?.health_risks[0].health_risk_name}></Chip>
+            <Chip label={data?.health_risks[1].health_risk_name}></Chip>
           </Stack>
         </CardContent>
       </Collapse>

@@ -4,8 +4,8 @@ import { getAllProductQuestion2 } from "./thunkAction";
 const initialState = {
   listProduct: [],
   detailProduct: undefined,
-  listProductQuestion2: [],
   loading: false,
+  dataBidding : [],
 };
 
 export const { reducer: manageProductReducer, actions: manageProductActions } =
@@ -25,6 +25,9 @@ export const { reducer: manageProductReducer, actions: manageProductActions } =
       getAllProductLocal: (state) => {
         state.listProduct = JSON.parse(localStorage.getItem("data"));
       },
+      getDataBidding :(state,action) => {
+        state.dataBidding = action.payload
+      }
     },
     extraReducers: (builder) => {
       builder
@@ -32,8 +35,7 @@ export const { reducer: manageProductReducer, actions: manageProductActions } =
           state.loading = true;
         })
         .addCase(getAllProductQuestion2.fulfilled, (state, action) => {
-          state.listProductQuestion2 = action.payload;
-          state.loading = false;
+          localStorage.setItem("listDataStatic",JSON.stringify(action.payload))
         });
     },
   });

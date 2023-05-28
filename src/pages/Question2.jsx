@@ -4,53 +4,77 @@ import { getAllProductQuestion2 } from "../store/manageProduct/thunkAction";
 import ListCard from "../components/ListCard";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@mui/material";
-import Animations from "../components/loading/Skeleton";
+import { Container } from "@mui/system";
+import { manageProductActions } from "../store/manageProduct/slice";
 
 const Question2 = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
+  const pageSize = 10;
   useEffect(() => {
     dispatch(getAllProductQuestion2());
-  }, []);
+  }, [dispatch]);
 
-  const { listProductQuestion2 ,loading} = useSelector((state) => state.manageProduct);
+  const { dataBidding } = useSelector(
+    (state) => state.manageProduct
+  );
+
+  const listProductQuestion2 = JSON.parse(localStorage.getItem("listDataStatic"))
 
   const divideData = () => {
     let dataSplitPage = {};
-    let final = Math.ceil(listProductQuestion2.length / 10);
+    let final = Math.ceil(listProductQuestion2.length / pageSize);
     let term = 1;
     let listTerm = [];
     let startIndex = 0;
     while (term <= final) {
-      listTerm = listProductQuestion2.slice(startIndex, startIndex + 10);
+      listTerm = listProductQuestion2.slice(startIndex, startIndex + pageSize);
       dataSplitPage[term] = listTerm;
       term += 1;
-      startIndex += 10;
+      startIndex += pageSize;
     }
     return dataSplitPage;
   };
   const dataHaveDivided = divideData();
+  console.log("data di", dataHaveDivided);
   const getProductData = (pageIndex) => {
     return dataHaveDivided[pageIndex];
   };
-
-  const [pageIndex, setPageIndex] = useState(1);
-  const [dataBidding, setDataBidding] = useState(getProductData(pageIndex));
+  const page1 = getProductData(1);
+  localStorage.setItem("dataBidding", JSON.stringify(page1));
+  console.log("page1", page1);
 
   useEffect(() => {
-    if (pageIndex > 1) {
-      const oldData = dataBidding;
-      setDataBidding(oldData.concat(getProductData(pageIndex)));
-    } else {
-      setDataBidding(getProductData(pageIndex));
-    }
+    dispatch(manageProductActions.getDataBidding(page1));
+  }, []);
+
+  const [data, setData] = useState(page1);
+
+  const [pageIndex, setPageIndex] = useState(1);
+  console.log("page Index", pageIndex);
+  console.log("data bidding", dataBidding);
+
+  useEffect(() => {
+    const newData = getProductData(pageIndex)?.filter(
+      (item) => item !== undefined || item !== null
+    );
+    setData((prevData) => {
+      if (prevData) {
+        return prevData
+          .concat(newData)
+          .filter((item) => item !== undefined || item !== null);
+      }
+      return newData;
+    });
+    dispatch(manageProductActions.getDataBidding(data));
+    console.log("dataBiddingUseEffect", dataBidding);
+    localStorage.setItem("dataBidding", JSON.stringify(data));
   }, [pageIndex]);
 
   const handleScroll = () => {
     if (
       window.innerHeight + window.scrollY >= document.body.offsetHeight &&
-      pageIndex < Object.keys(dataHaveDivided).length // check has scrolled to the bottom of the page && current Index < total Page
+      pageIndex < Object.keys(dataHaveDivided).length
     ) {
       setPageIndex((prevIndex) => prevIndex + 1);
     }
@@ -58,13 +82,14 @@ const Question2 = () => {
 
   useEffect(() => {
     window.addEventListener("scroll", handleScroll);
+
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
 
   return (
-    <div>
+    <Container>
       <Button
         onClick={() => {
           navigate("/");
@@ -74,8 +99,11 @@ const Question2 = () => {
       >
         BACK HOME
       </Button>
-      { loading ? <Animations /> : <ListCard data={dataBidding} columns={1} /> && <Button   style={{ position: "absolute", bottom: 10, left: 10 }} color="secondary">Load More</Button>}
-    </div>
+      <>
+        <ListCard data={dataBidding} columns={1} />
+        <Button color="secondary">Load More</Button>
+      </>
+    </Container>
   );
 };
 
