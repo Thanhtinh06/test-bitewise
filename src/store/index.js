@@ -1,8 +1,13 @@
 import { configureStore } from "@reduxjs/toolkit";
-import { manageProductReducer } from "./manageProduct/slice";
+import {
+  manageProductActions,
+  manageProductReducer,
+} from "./manageProduct/slice";
 
 export const store = configureStore({
-  reducer : {
-    manageProduct : manageProductReducer,
-  }
-})
+  reducer: {
+    manageProduct: manageProductReducer,
+  },
+});
+
+store.dispatch(manageProductActions.getAllProductLocal());

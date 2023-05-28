@@ -1,12 +1,13 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { getAllProductQuestion2 } from "./thunkAction";
+import { divideData } from "../../constant/mockAPI";
 
 const initialState = {
   listProduct: [],
   detailProduct: undefined,
   listProductQuestion2: [],
-  loading: false,
-  dataBidding : [],
+  dataBinding: [],
+  pageIndex: [],
+  dataHaveDivided : {}
 };
 
 export const { reducer: manageProductReducer, actions: manageProductActions } =
@@ -26,8 +27,24 @@ export const { reducer: manageProductReducer, actions: manageProductActions } =
       getAllProductLocal: (state) => {
         state.listProduct = JSON.parse(localStorage.getItem("data"));
       },
-      getDataBidding :(state,action) => {
-        state.dataBidding = action.payload
-      }
+      getAllProductLocalQuestion2: (state,action) => {
+        state.listProductQuestion2 = action.payload
+        state.dataHaveDivided = divideData(action.payload);
+        localStorage.setItem("DataDivided",JSON.stringify(state.dataHaveDivided))
+      },
+      getdataBinding: (state, action) => {
+        const prevData = state.dataBinding;
+        const hasIndex = state.pageIndex.includes(action.payload.pageIndex);
+        if (prevData && action.payload.page && !hasIndex) {
+          state.dataBinding = [...state.dataBinding, ...action.payload.page];
+          state.pageIndex.push(action.payload.pageIndex);
+        } else {
+          state.dataBinding = action.payload.page;
+          state.pageIndex = [];
+        }
+      },
+      resetDataBinding: (state, action) => {
+        state.dataBinding = action.payload;
+      },
     },
   });

@@ -4,6 +4,7 @@ import CardProduct from "./card/CardProduct";
 
 const ListCard = (props) => {
   const { data, columns } = props;
+  
   const renderListProduct = () => {
     return data?.map((value, index) => {
       if(value){

@@ -6,74 +6,43 @@ import { Button } from "@mui/material";
 import { Container } from "@mui/system";
 import { manageProductActions } from "../store/manageProduct/slice";
 import { manageProductServices } from "../services/manageProduct.services";
+import { getProductData } from "../constant/mockAPI";
 
 const Question2 = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const pageSize = 10;
-  const fetchData = async() => {
-    const res = await manageProductServices.getDataQuestion2()
-    if(res.status === 200){
-      localStorage.setItem("listDataStatic",JSON.stringify(res.data))
-    }
-  }
-  fetchData()
-  const { dataBidding } = useSelector(
+  const [pageIndex, setPageIndex] = useState(1);
+  const { dataBinding, dataHaveDivided } = useSelector(
     (state) => state.manageProduct
   );
 
-  const listProductQuestion2 = JSON.parse(localStorage.getItem("listDataStatic")) || ""
-
-  const divideData = () => {
-    let dataSplitPage = {};
-    let final = Math.ceil(listProductQuestion2.length / pageSize);
-    let term = 1;
-    let listTerm = [];
-    let startIndex = 0;
-    while (term <= final) {
-      listTerm = listProductQuestion2.slice(startIndex, startIndex + pageSize);
-      dataSplitPage[term] = listTerm;
-      term += 1;
-      startIndex += pageSize;
-    }
-    return dataSplitPage;
-  };
-  const dataHaveDivided = divideData();
-  console.log("data di", dataHaveDivided);
-  const getProductData = (pageIndex) => {
-    return dataHaveDivided[pageIndex];
-  };
-  const page1 = getProductData(1);
-  localStorage.setItem("dataBidding", JSON.stringify(page1));
-  console.log("page1", page1);
-
-  useEffect(() => {
-    dispatch(manageProductActions.getDataBidding(page1));
-  }, []);
-
-  const [data, setData] = useState(page1);
-
-  const [pageIndex, setPageIndex] = useState(1);
-  console.log("page Index", pageIndex);
-  console.log("data bidding", dataBidding);
-
-  useEffect(() => {
-    const newData = getProductData(pageIndex)?.filter(
-      (item) => item !== undefined || item !== null
-    );
-    setData((prevData) => {
-      if (prevData) {
-        return prevData
-          .concat(newData)
-          .filter((item) => item !== undefined || item !== null);
+  const fetchData = async () => {
+    try {
+      const res = await manageProductServices.getDataQuestion2();
+      if (res.status === 200) {
+        dispatch(manageProductActions.getAllProductLocalQuestion2(res.data));
       }
-      return newData;
-    });
-    dispatch(manageProductActions.getDataBidding(data));
-    console.log("dataBiddingUseEffect", dataBidding);
-    localStorage.setItem("dataBidding", JSON.stringify(data));
-  }, [pageIndex]);
+    } catch (error) {
+      // Handle any errors that occur during the fetch
+      console.error(error);
+    }
+  };
 
+  useEffect(() => {
+    const loadData = async () => {
+      await fetchData();
+      const dataHaveDivided = localStorage.getItem("DataDivided")
+        ? JSON.parse(localStorage.getItem("DataDivided"))
+        : [];
+      const page = getProductData(dataHaveDivided, pageIndex);
+      if (page) {
+        dispatch(manageProductActions.getdataBinding({ page, pageIndex }));
+      }
+    };
+    loadData();
+  }, [dispatch, pageIndex]);
+
+  // Handle scroll event and update pageIndex
   const handleScroll = () => {
     if (
       window.innerHeight + window.scrollY >= document.body.offsetHeight &&
@@ -83,13 +52,17 @@ const Question2 = () => {
     }
   };
 
+  // Add scroll event listener after data is loaded
   useEffect(() => {
-    window.addEventListener("scroll", handleScroll);
+    if (dataHaveDivided && Object.keys(dataHaveDivided).length > 0) {
+      window.addEventListener("scroll", handleScroll);
+    }
 
+    // Remove scroll event listener on component unmount
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
-  }, []);
+  }, [dataHaveDivided]);
 
   return (
     <Container>
@@ -103,7 +76,7 @@ const Question2 = () => {
         BACK HOME
       </Button>
       <>
-        <ListCard data={dataBidding} columns={1} />
+        <ListCard data={dataBinding} columns={1} />
         <Button color="secondary">Load More</Button>
       </>
     </Container>
